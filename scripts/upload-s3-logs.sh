@@ -5,8 +5,10 @@
 # Description: Uploads all files from logs directory directly to S3 bucket
 
 # Configuration
-BUCKET_NAME="${AWS_S3_LOG_BUCKET_NAME}"
+# BUCKET_NAME="${AWS_S3_LOG_BUCKET_NAME}"
+BUCKET_NAME="dev-server-logs-tasks"
 LOGS_DIR="../logs"
+S3_PREFIX="logs/"
 
 # Colors for output
 RED='\033[0;31m'
@@ -61,12 +63,12 @@ main() {
     # Upload entire logs directory to S3 (WITHOUT --delete flag)
     log_info "Uploading logs directory to S3..."
     
-    if aws s3 sync "$LOGS_DIR" "s3://$BUCKET_NAME" --quiet; then
+    if aws s3 sync "$LOGS_DIR" "s3://$BUCKET_NAME/$S3_PREFIX" --quiet; then
         log_success "All files uploaded successfully!"
         
         # Show what was uploaded
         log_info "Files in S3 bucket:"
-        aws s3 ls "s3://$BUCKET_NAME" --human-readable
+        aws s3 ls "s3://$BUCKET_NAME/$S3_PREFIX" --human-readable
         
     else
         log_error "Upload failed!"

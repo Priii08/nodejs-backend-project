@@ -38,7 +38,7 @@ export const uploadLogToS3 = async (filePath: string) => {
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
-      Key: fileName!,
+      Key: `logs/${fileName!}`,
       Body: fileContent,
     });
 
