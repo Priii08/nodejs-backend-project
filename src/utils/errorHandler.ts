@@ -78,6 +78,14 @@ export default class ErrorHandler extends Error {
 
   /**
    * @param message - Error message
+   * @returns ErrorHandler instance for Internal Server Error
+   */
+  static InternalServerError(message: string, metadata?: Record<string, unknown>) {
+    return new ErrorHandler(message, 500, ErrorType.INTERNAL_SERVER_ERROR, metadata);
+  }
+
+  /**
+   * @param message - Error message
    * @returns ErrorHandler instance for Database Error
    */
   static DatabaseError(message: string, metadata?: Record<string, unknown>) {
