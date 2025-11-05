@@ -1,5 +1,5 @@
 import express, { type Router } from 'express';
-import { loginHandler, signupHandlerWithValidation } from '@/controllers/auth.controller';
+import { loginHandlerWithValidation, signupHandlerWithValidation } from '@/controllers/auth.controller';
 import { sendVerificationEmailWithValidation, verifyAccountWithValidation } from '@/controllers/verify.controller';
 
 const router: Router = express.Router();
@@ -117,7 +117,7 @@ router.route('/signup').post(signupHandlerWithValidation);
  *                   type: string
  *                   example: Invalid email or password
  */
-router.route('/login').post(loginHandler);
+router.route('/login').post(loginHandlerWithValidation);
 
 /**
  * @openapi
@@ -154,7 +154,32 @@ router.route('/login').post(loginHandler);
  *                 message:
  *                   type: string
  *                   example: Verification email sent successfully
- *
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ *       400:
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Invalid request data
  */
 router.route('/verify-account/email-verification').post(sendVerificationEmailWithValidation);
 

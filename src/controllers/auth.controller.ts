@@ -31,7 +31,7 @@ import { db } from '@/db';
 import { users } from '@/db/schemas';
 import { asyncHandler, Response, validate } from '@/utils/asyncHandler';
 import ErrorHandler from '@/utils/errorHandler';
-import { SignupSchema } from '@/utils/validations';
+import { LoginSchema, SignupSchema } from '@/utils/validations';
 import { comparePasswords, hashPassword } from '@/utils/helpers';
 import { generateJWTandSetCookie } from '@/utils/jwt_session';
 import logger from '@/core/logger';
@@ -188,3 +188,12 @@ export const loginHandler = asyncHandler(async (req: ExpressRequest, res: Expres
 
   return Response.success({ token, user: userSafe }, 'Login successful');
 });
+
+/**
+ * Login Handler with Validation Middleware
+ * - Validates request body against LoginSchema
+ * - Calls loginHandler
+ *
+ * @exports LoginHandlerWithValidation
+ */
+export const loginHandlerWithValidation = [validate(data => LoginSchema.parse(data)), loginHandler];

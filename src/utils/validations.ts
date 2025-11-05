@@ -10,6 +10,15 @@ export const SignupSchema = z.object({
 });
 
 /**
+ * Login Schema
+ * - Validates user login credentials
+ */
+export const LoginSchema = z.object({
+  email: z.email('Invalid email format'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+/**
  * Task-related validation schemas
  */
 export const CreateTaskSchema = z
