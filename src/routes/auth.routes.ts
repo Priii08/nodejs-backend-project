@@ -1,5 +1,5 @@
 import express, { type Router } from 'express';
-import { loginHandlerWithValidation, signupHandlerWithValidation } from '@/controllers/auth.controller';
+import { loginHandlerWithValidation, logoutHandler, signupHandlerWithValidation } from '@/controllers/auth.controller';
 import { sendVerificationEmailWithValidation, verifyAccountWithValidation } from '@/controllers/verify.controller';
 
 const router: Router = express.Router();
@@ -249,5 +249,55 @@ router.route('/verify-account/email-verification').post(sendVerificationEmailWit
  *                   example: Email not found
  */
 router.route('/verify-account').post(verifyAccountWithValidation);
+
+/**
+ * @openapi
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout the user by clearing the JWT cookie
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Logout successful
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+router.route('/logout').post(logoutHandler);
 
 export default router;

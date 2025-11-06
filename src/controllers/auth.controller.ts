@@ -35,6 +35,16 @@ import { LoginSchema, SignupSchema } from '@/utils/validations';
 import { comparePasswords, hashPassword } from '@/utils/helpers';
 import { generateJWTandSetCookie } from '@/utils/jwt_session';
 import logger from '@/core/logger';
+import { env } from '@/env';
+
+// Define authenticated request interface
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    id: string;
+    email: string;
+    username: string;
+  };
+}
 
 /**
  * Signup Handler
@@ -197,3 +207,42 @@ export const loginHandler = asyncHandler(async (req: ExpressRequest, res: Expres
  * @exports LoginHandlerWithValidation
  */
 export const loginHandlerWithValidation = [validate(data => LoginSchema.parse(data)), loginHandler];
+
+export const logoutHandler = asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
+  try {
+    // Get user info from request (if available from auth middleware)
+    const user = req.user;
+
+    // Clear the JWT cookie by setting it to expire immediately
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
+
+    // Log the logout event
+    if (user) {
+      logger.info('User logged out successfully', {
+        userId: user.id,
+        email: user.email,
+        timestamp: new Date().toISOString(),
+      });
+    } else {
+      logger.info('Logout attempt (no active session)', {
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return Response.success(null, 'Logged out successfully');
+  } catch (error) {
+    logger.error('Logout error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    // Even if there's an error, we should still clear the cookie
+    res.clearCookie('token');
+
+    return Response.success(null, 'Logged out successfully');
+  }
+});
