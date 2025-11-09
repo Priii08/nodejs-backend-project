@@ -35,6 +35,8 @@ import { LoginSchema, SignupSchema } from '@/utils/validations';
 import { comparePasswords, hashPassword } from '@/utils/helpers';
 import { generateJWTandSetCookie } from '@/utils/jwt_session';
 import logger from '@/core/logger';
+import type { AuthenticatedRequest } from '@/types/auth-request';
+import { env } from '@/env';
 
 /**
  * Signup Handler
@@ -197,3 +199,57 @@ export const loginHandler = asyncHandler(async (req: ExpressRequest, res: Expres
  * @exports LoginHandlerWithValidation
  */
 export const loginHandlerWithValidation = [validate(data => LoginSchema.parse(data)), loginHandler];
+
+export const logoutHandler = asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
+  try {
+    // Get user info from request (should be set by auth middleware)
+    const user = req.user;
+
+    // If no user in request, it means auth middleware didn't set it (no valid token)
+    if (!user) {
+      logger.warn('Logout attempt without valid authentication', {
+        path: req.path,
+        timestamp: new Date().toISOString(),
+      });
+
+      // Use the Response.unAuthorized helper from asyncHandler
+      return Response.unAuthorized('No active session to logout');
+    }
+
+    logger.info('User logout initiated', {
+      userId: user.id,
+      email: user.email,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Clear the JWT cookie
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
+
+    logger.info('User logged out successfully', {
+      userId: user.id,
+      email: user.email,
+      timestamp: new Date().toISOString(),
+    });
+
+    return Response.success(null, 'Logged out successfully');
+  } catch (error) {
+    logger.error('Logout error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    // Even if there's an error, we should still clear the cookie
+    res.clearCookie('token');
+
+    // If it's an auth-related error, return 401
+    if (error instanceof ErrorHandler && error.statusCode === 401) {
+      return Response.unAuthorized('Invalid or expired token');
+    }
+
+    throw error; // Re-throw other errors to be handled by asyncHandler
+  }
+});

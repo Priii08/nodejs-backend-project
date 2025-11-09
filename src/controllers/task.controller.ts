@@ -30,7 +30,6 @@
  * @version 1.0.0
  */
 
-import type { Request } from 'express';
 import { eq, and, desc, asc, count, like } from 'drizzle-orm';
 import { db } from '@/db';
 import { tasks } from '@/db/schemas';
@@ -39,39 +38,8 @@ import ErrorHandler from '@/utils/errorHandler';
 import { CreateTaskSchema, UpdateTaskSchema, TaskQuerySchema, TaskParamsSchema } from '@/utils/validations';
 import logger from '@/core/logger';
 import { authMiddleware } from '@/middlewares/auth.middleware';
-
-/**
- * Enhanced Request interface with authenticated user
- */
-interface AuthenticatedRequest extends Request {
-  user: {
-    id: string;
-    email: string;
-    username: string;
-    isVerified: boolean;
-    role: string;
-  };
-}
-
-/**
- * Middleware to verify user authentication and email verification
- * This should be applied to all task routes before the actual handlers
- */
-const verifyUserAccess = (req: AuthenticatedRequest) => {
-  if (!req.user) {
-    throw ErrorHandler.AuthError('Authentication required');
-  }
-
-  // if (!req.user.isVerified) {
-  //   throw ErrorHandler.Forbidden('Email verification required to access tasks');
-  // }
-
-  logger.info('User access verified', {
-    userId: req.user.id,
-    email: req.user.email,
-    action: 'task_access',
-  });
-};
+import type { AuthenticatedRequest } from '@/types/auth-request';
+import { verifyUserAccess } from '@/middlewares/verifyUserAccess';
 
 /**
  * Create New Task Handler
