@@ -1,6 +1,5 @@
 import type { Request } from 'express';
 import logger from '@/core/logger';
-import ErrorHandler from './errorHandler';
 
 /**
  * Google connection helper
@@ -57,7 +56,7 @@ export function getGoogleConnectionStatus(req: Request): GoogleConnectionResult 
       });
     }
   } catch (err) {
-    throw ErrorHandler.InternalServerError('Error logging Google connection status');
+    logger.error('Error logging Google connection status', { err });
   }
 
   return result;
