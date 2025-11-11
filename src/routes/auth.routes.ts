@@ -2,6 +2,7 @@ import express, { type Router } from 'express';
 import { loginHandlerWithValidation, logoutHandler, signupHandlerWithValidation } from '@/controllers/auth.controller';
 import {
   googleVerificationHandler,
+  googleOAuthCallbackHandler,
   sendVerificationEmailWithValidation,
   verifyAccountWithValidation,
 } from '@/controllers/verify.controller';
@@ -307,6 +308,12 @@ router.route('/verify-account').post(verifyAccountWithValidation);
  *                   example: Google verification not implemented yet
  */
 router.route('/verify-account/google-verification').post(googleVerificationHandler);
+
+/**
+ * Google OAuth callback route
+ * Google will redirect users to this endpoint with `code` and `state` query params.
+ */
+router.route('/verify-account/google_callback').get(googleOAuthCallbackHandler);
 
 /**
  * @openapi

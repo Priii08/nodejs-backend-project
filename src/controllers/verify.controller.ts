@@ -122,3 +122,8 @@ export const verifyAccountWithValidation = [validate(data => verifyOtpSchema.par
 export const googleVerificationHandler = asyncHandler(async (_req: ExpressRequest, _res: ExpressResponse) => {
   return Response.success(null, 'Google account verified successfully');
 });
+
+export const googleOAuthCallbackHandler = asyncHandler(async (req: ExpressRequest, _res: ExpressResponse) => {
+  const { code, state } = req.query;
+  return Response.success({ code: code ?? null, state: state ?? null }, 'Google OAuth callback route reached');
+});
